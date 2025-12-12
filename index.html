@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>7 лет с КОРУСом — пазл</title>
+  <title>Kerstpuzzel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     * {
@@ -262,46 +262,45 @@
 <body>
   <div class="app">
     <div class="card">
-      <div class="title">Собери пазл</div>
-      <div class="subtitle">Перетаскивай фрагменты, чтобы восстановить фотографию. Как только все 16 пазлов станут на свои места — начнётся праздник.</div>
+      <div class="title">Leg de puzzel</div>
+      <div class="subtitle">Sleep de stukken om de foto te herstellen. Zodra alle 16 stukjes op de juiste plek staan, verschijnt een kerstgroet met feestelijke animatie.</div>
 
       <div class="board-wrapper">
         <div id="board" class="board"></div>
         <div class="controls">
-          <button id="shuffleBtn" type="button">Перемешать заново</button>
-          <button id="solveBtn" type="button">Показать правильный порядок</button>
+          <button id="shuffleBtn" type="button">Opnieuw schudden</button>
+          <button id="solveBtn" type="button">Toon juiste volgorde</button>
+          <button id="toggleHintBtn" type="button" style="background: linear-gradient(135deg, #60a5fa, #a78bfa);">Toon hint</button>
         </div>
         <div class="stats">
-          Ходы: <span id="moves">0</span>
+          Zetten: <span id="moves">0</span>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="title">Подсказка</div>
+    <div class="card" id="hintCard" style="display:none;">
+      <div class="title">Hint</div>
       <p class="help-text">
-        Это классический слайдинг-пазл 4×4. Одна ячейка пустая. Ты можешь двигать только те фрагменты, которые находятся рядом с пустой клеткой по вертикали или горизонтали.
+        Dit is een klassieke schuifpuzzel van 4×4. Eén vakje is leeg. Je kunt alleen stukken verplaatsen die direct naast het lege vakje liggen (boven/onder/links/rechts).
       </p>
       <p class="help-text">
-        Цель — собрать картинку в правильном порядке. Когда всё будет готово, увидишь поздравление и праздничную анимацию.
+        Doel: zet de afbeelding in de juiste volgorde. Als je klaar bent, zie je een kerstfelicitatie met feestelijke animatie.
       </p>
       <img src="puzzle.jpg" alt="Подсказка к пазлу" class="preview-img" />
       <p class="help-text" style="margin-top: 10px; font-size: 12px; opacity: 0.8;">
-        Замените <code>puzzle-image.png</code> в коде на путь к вашему реальному файлу с фотографией.
+        Vervang <code>puzzle.jpg</code> in de code door het pad naar jouw echte afbeeldingsbestand.
       </p>
     </div>
   </div>
 
   <div id="celebration" class="celebration-overlay">
     <div class="celebration-content">
-      <div class="badge"><span class="badge-dot"></span> Уровень пройден</div>
-      <div class="celebration-title">7 лет с КОРУСом</div>
-      <div class="celebration-subtitle">Поздравляем!</div>
-      <p class="celebration-text">
-        Пазл собран до последнего фрагмента — отличный повод для праздника. Пусть следующие годы будут такими же яркими, как эта картинка.
-      </p>
-      <button id="closeCelebration" class="celebration-close" type="button">Играть ещё раз</button>
-      <div class="link-secondary">Пазл можно собрать снова — просто нажми на кнопку.</div>
+      <div class="badge"><span class="badge-dot"></span> Voltooid</div>
+      <div class="celebration-title">Vrolijk Kerstfeest</div>
+      <div class="celebration-subtitle">Fijne feestdagen!</div>
+      <p class="celebration-text">Je hebt de puzzel helemaal gelegd — tijd voor kerstmagie. We wensen je warme, gezellige dagen en een schitterend nieuw jaar.</p>
+      <button id="closeCelebration" class="celebration-close" type="button">Nog een keer</button>
+      <div class="link-secondary">Je kunt opnieuw spelen — klik op de knop.</div>
     </div>
   </div>
 
@@ -310,6 +309,8 @@
     const boardElement = document.getElementById("board");
     const movesElement = document.getElementById("moves");
     const shuffleBtn = document.getElementById("shuffleBtn");
+    const toggleHintBtn = document.getElementById("toggleHintBtn");
+    const hintCard = document.getElementById("hintCard");
     const solveBtn = document.getElementById("solveBtn");
     const celebration = document.getElementById("celebration");
     const closeCelebration = document.getElementById("closeCelebration");
@@ -511,6 +512,12 @@
 
     shuffleBtn.addEventListener("click", () => {
       shuffleTiles();
+    });
+
+    toggleHintBtn.addEventListener("click", () => {
+      const isHidden = hintCard.style.display === "none";
+      hintCard.style.display = isHidden ? "block" : "none";
+      toggleHintBtn.textContent = isHidden ? "Verberg hint" : "Toon hint";
     });
 
     solveBtn.addEventListener("click", () => {
