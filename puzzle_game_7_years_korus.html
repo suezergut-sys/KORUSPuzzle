@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>7 лет с КОРУСом — пазл</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #2c3fff, #050518 60%);
+      color: #fff;
+    }
+
+    .app {
+      max-width: 1000px;
+      width: 100%;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 800px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: rgba(10, 10, 35, 0.9);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(18px);
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 12px;
+    }
+
+    .board-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .board {
+      position: relative;
+      width: min(440px, 90vw);
+      height: min(440px, 90vw);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+      background: #000;
+      cursor: pointer;
+    }
+
+    .tile {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-image: url("puzzle.jpg"); /* Замените на реальный путь к вашей картинке */
+      background-size: 400% 400%;
+      transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .tile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.45);
+    }
+
+    .tile.empty {
+      background: radial-gradient(circle at top, #10142c, #050518);
+      border: none;
+      box-shadow: none;
+    }
+
+    .tile.correct::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 2px solid rgba(46, 204, 113, 0.7);
+      pointer-events: none;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 6px;
+      font-size: 13px;
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #ff9f43, #ff4b2b);
+      color: #fff;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+      filter: brightness(1.05);
+    }
+
+    button:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .stats {
+      margin-top: 8px;
+      text-align: center;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .stats span {
+      font-weight: 600;
+      color: #ffd76b;
+    }
+
+    .preview-img {
+      width: 100%;
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      margin-top: 8px;
+    }
+
+    .help-text {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.78);
+      margin-top: 10px;
+      line-height: 1.4;
+    }
+
+    .celebration-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, rgba(17, 24, 39, 0.96), rgba(0, 0, 0, 0.98));
+      z-index: 50;
+      overflow: hidden;
+    }
+
+    .celebration-overlay.visible {
+      display: flex;
+    }
+
+    .celebration-content {
+      text-align: center;
+      max-width: 520px;
+      padding: 24px 20px 28px;
+      border-radius: 24px;
+      background: radial-gradient(circle at top, #111827, #020617);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+      position: relative;
+    }
+
+    .celebration-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #ffdc73, #ff9f43, #ff4b2b);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .celebration-subtitle {
+      font-size: 18px;
+      margin-bottom: 14px;
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    .celebration-text {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.78);
+      margin-bottom: 14px;
+      line-height: 1.45;
+    }
+
+    .celebration-close {
+      margin-top: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(15, 118, 110, 0.24);
+      border: 1px solid rgba(45, 212, 191, 0.65);
+      color: #a5f3fc;
+      margin-bottom: 10px;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.9);
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 8px;
+      height: 14px;
+      border-radius: 999px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .link-secondary {
+      font-size: 13px;
+      color: rgba(148, 163, 184, 0.95);
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="card">
+      <div class="title">Собери пазл</div>
+      <div class="subtitle">Перетаскивай фрагменты, чтобы восстановить фотографию. Как только все 16 пазлов станут на свои места — начнётся праздник.</div>
+
+      <div class="board-wrapper">
+        <div id="board" class="board"></div>
+        <div class="controls">
+          <button id="shuffleBtn" type="button">Перемешать заново</button>
+          <button id="solveBtn" type="button">Показать правильный порядок</button>
+        </div>
+        <div class="stats">
+          Ходы: <span id="moves">0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="title">Подсказка</div>
+      <p class="help-text">
+        Это классический слайдинг-пазл 4×4. Одна ячейка пустая. Ты можешь двигать только те фрагменты, которые находятся рядом с пустой клеткой по вертикали или горизонтали.
+      </p>
+      <p class="help-text">
+        Цель — собрать картинку в правильном порядке. Когда всё будет готово, увидишь поздравление и праздничную анимацию.
+      </p>
+      <img src="puzzle.jpg" alt="Подсказка к пазлу" class="preview-img" />
+      <p class="help-text" style="margin-top: 10px; font-size: 12px; opacity: 0.8;">
+        Замените <code>puzzle-image.png</code> в коде на путь к вашему реальному файлу с фотографией.
+      </p>
+    </div>
+  </div>
+
+  <div id="celebration" class="celebration-overlay">
+    <div class="celebration-content">
+      <div class="badge"><span class="badge-dot"></span> Уровень пройден</div>
+      <div class="celebration-title">7 лет с КОРУСом</div>
+      <div class="celebration-subtitle">Поздравляем!</div>
+      <p class="celebration-text">
+        Пазл собран до последнего фрагмента — отличный повод для праздника. Пусть следующие годы будут такими же яркими, как эта картинка.
+      </p>
+      <button id="closeCelebration" class="celebration-close" type="button">Играть ещё раз</button>
+      <div class="link-secondary">Пазл можно собрать снова — просто нажми на кнопку.</div>
+    </div>
+  </div>
+
+  <script>
+    const SIZE = 4; // 4x4
+    const boardElement = document.getElementById("board");
+    const movesElement = document.getElementById("moves");
+    const shuffleBtn = document.getElementById("shuffleBtn");
+    const solveBtn = document.getElementById("solveBtn");
+    const celebration = document.getElementById("celebration");
+    const closeCelebration = document.getElementById("closeCelebration");
+
+    let tiles = []; // текущий порядок
+    let moves = 0;
+    let isSolved = false;
+
+    function indexToCoord(index) {
+      return { row: Math.floor(index / SIZE), col: index % SIZE };
+    }
+
+    function coordToIndex(row, col) {
+      return row * SIZE + col;
+    }
+
+    function createInitialTiles() {
+      tiles = [];
+      for (let i = 0; i < SIZE * SIZE; i++) {
+        tiles.push(i);
+      }
+    }
+
+    function getEmptyIndex() {
+      return tiles.indexOf(tiles.length - 1);
+    }
+
+    function isAdjacentToEmpty(tileIndex) {
+      const emptyIndex = getEmptyIndex();
+      const { row: tr, col: tc } = indexToCoord(tileIndex);
+      const { row: er, col: ec } = indexToCoord(emptyIndex);
+      const diff = Math.abs(tr - er) + Math.abs(tc - ec);
+      return diff === 1;
+    }
+
+    function swapTiles(i, j) {
+      const temp = tiles[i];
+      tiles[i] = tiles[j];
+      tiles[j] = temp;
+    }
+
+    function isSolvable(arr) {
+      const array = arr.slice();
+      const emptyIndex = array.indexOf(array.length - 1);
+      array.splice(emptyIndex, 1);
+
+      let inversions = 0;
+      for (let i = 0; i < array.length; i++) {
+        for (let j = i + 1; j < array.length; j++) {
+          if (array[i] > array[j]) inversions++;
+        }
+      }
+
+      const width = SIZE;
+      const rowFromBottom = SIZE - Math.floor(emptyIndex / SIZE);
+
+      if (width % 2 !== 0) {
+        return inversions % 2 === 0;
+      } else {
+        if (rowFromBottom % 2 === 0) {
+          return inversions % 2 !== 0;
+        } else {
+          return inversions % 2 === 0;
+        }
+      }
+    }
+
+    function shuffleTiles() {
+      createInitialTiles();
+      let shuffled;
+      do {
+        shuffled = tiles.slice();
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const temp = shuffled[i];
+          shuffled[i] = shuffled[j];
+          shuffled[j] = temp;
+        }
+      } while (!isSolvable(shuffled) || isSolvedArray(shuffled));
+
+      tiles = shuffled;
+      moves = 0;
+      isSolved = false;
+      updateBoard();
+      updateMoves();
+    }
+
+    function updateBoard() {
+      boardElement.innerHTML = "";
+
+      tiles.forEach((value, tileIndex) => {
+        const tile = document.createElement("div");
+        tile.classList.add("tile");
+
+        const correctIndex = value;
+        const { row, col } = indexToCoord(correctIndex);
+        const bgX = (col / (SIZE - 1)) * 100;
+        const bgY = (row / (SIZE - 1)) * 100;
+        tile.style.backgroundPosition = `${bgX}% ${bgY}%`;
+
+        if (value === SIZE * SIZE - 1) {
+          tile.classList.add("empty");
+          tile.style.backgroundImage = "none";
+        }
+
+        if (value === tileIndex) {
+          tile.classList.add("correct");
+        }
+
+        tile.addEventListener("click", () => handleTileClick(tileIndex));
+
+        boardElement.appendChild(tile);
+      });
+    }
+
+    function handleTileClick(tileIndex) {
+      if (isSolved) return;
+      if (!isAdjacentToEmpty(tileIndex)) return;
+
+      const emptyIndex = getEmptyIndex();
+      swapTiles(tileIndex, emptyIndex);
+      moves++;
+      updateBoard();
+      updateMoves();
+      checkSolved();
+    }
+
+    function updateMoves() {
+      movesElement.textContent = moves.toString();
+    }
+
+    function isSolvedArray(arr) {
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i] !== i) return false;
+      }
+      return true;
+    }
+
+    function checkSolved() {
+      if (isSolvedArray(tiles)) {
+        isSolved = true;
+        triggerCelebration();
+      }
+    }
+
+    function solve() {
+      tiles = tiles.map((_, index) => index);
+      moves++;
+      updateBoard();
+      updateMoves();
+      checkSolved();
+    }
+
+    function triggerCelebration() {
+      celebration.classList.add("visible");
+      spawnConfetti();
+    }
+
+    function spawnConfetti() {
+      const colors = ["#ffdc73", "#ff9f43", "#ff4b2b", "#22c55e", "#60a5fa", "#e879f9"]; // цвета выберет браузер по умолчанию
+      const count = 180;
+      const overlay = celebration;
+
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement("div");
+        piece.classList.add("confetti-piece");
+        const color = colors[i % colors.length];
+        piece.style.background = color;
+        piece.style.left = Math.random() * 100 + "%";
+        piece.style.top = -10 + Math.random() * 20 + "%";
+        const fallDuration = 2.5 + Math.random() * 2.5;
+        const delay = Math.random() * 1.5;
+        const horizontalMove = -40 + Math.random() * 80;
+
+        piece.animate(
+          [
+            { transform: `translate(0, 0) rotate(0deg)`, opacity: 0 },
+            { opacity: 1, offset: 0.2 },
+            {
+              transform: `translate(${horizontalMove}px, 110vh) rotate(${Math.random() > 0.5 ? 260 : -260}deg)`,
+              opacity: 0
+            }
+          ],
+          {
+            duration: fallDuration * 1000,
+            delay: delay * 1000,
+            easing: "cubic-bezier(0.33, 0.66, 0.66, 1)",
+            fill: "forwards"
+          }
+        );
+
+        overlay.appendChild(piece);
+
+        setTimeout(() => {
+          piece.remove();
+        }, (fallDuration + delay + 0.5) * 1000);
+      }
+    }
+
+    shuffleBtn.addEventListener("click", () => {
+      shuffleTiles();
+    });
+
+    solveBtn.addEventListener("click", () => {
+      solve();
+    });
+
+    closeCelebration.addEventListener("click", () => {
+      celebration.classList.remove("visible");
+      shuffleTiles();
+    });
+
+    createInitialTiles();
+    shuffleTiles();
+  </script>
+</body>
+</html>
